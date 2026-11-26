@@ -177,6 +177,3 @@ dialog.photo-dialog { width: min(640px, calc(100vw - 24px)); }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
-
-.song-panel { padding-bottom: 16px; }
-.song-panel iframe { display: block; width: min(100%, 480px); aspect-ratio: 16 / 9; min-height: 200px; border: 0; border-radius: 8px; }

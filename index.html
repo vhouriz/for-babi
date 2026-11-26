@@ -29,14 +29,11 @@
         <a href="#album">Photo album</a>
         <a href="#letter">Love letter</a>
       </nav>
-      <button class="music" id="music" type="button" aria-expanded="false" aria-controls="song-panel">
+      <button class="music" id="music" type="button" aria-controls="keepsake-song">
         <span class="record" aria-hidden="true"></span><span id="music-label">Play music</span><svg class="mini-icon"><use href="#i-play"/></svg>
       </button>
     </div>
-    <section class="song-panel page-width" id="song-panel" aria-label="Music player" hidden>
-      <div id="song-frame"></div>
-      <a class="text-link" href="https://youtu.be/n5i3QRvPA9Y" target="_blank" rel="noopener">Listen on YouTube ↗</a>
-    </section>
+    <audio id="keepsake-song" preload="none" src="assets/music/ps-i-love-you.mp3"></audio>
   </header>
   <main id="main">
     <section id="home" class="hero page-width" aria-labelledby="greeting">

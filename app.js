@@ -154,24 +154,34 @@ window.addEventListener('scroll', updateNavigation, { passive: true });
 applyHash();
 
 const music = byId('music');
-const songPanel = byId('song-panel');
-const songFrame = byId('song-frame');
+const song = byId('keepsake-song');
+const musicLabel = byId('music-label');
 
-music.addEventListener('click', () => {
-  const opening = songPanel.hidden;
-  songPanel.hidden = !opening;
-  music.setAttribute('aria-expanded', String(opening));
-  byId('music-label').textContent = opening ? 'Close player' : 'Play music';
-  music.querySelector('use').setAttribute('href', opening ? '#i-close' : '#i-play');
+function updateMusicButton() {
+  const playing = !song.paused && !song.ended;
+  music.classList.toggle('playing', playing);
+  musicLabel.textContent = playing ? 'Pause music' : 'Play music';
+  music.querySelector('use').setAttribute('href', playing ? '#i-pause' : '#i-play');
+}
 
-  if (opening) {
-    const frame = document.createElement('iframe');
-    frame.title = 'Paul Partohap – P.S. I LOVE YOU';
-    frame.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
-    frame.referrerPolicy = 'strict-origin-when-cross-origin';
-    frame.src = 'https://www.youtube.com/embed/n5i3QRvPA9Y?autoplay=1&playsinline=1';
-    songFrame.append(frame);
-  } else {
-    songFrame.replaceChildren();
+function showMusicError() {
+  updateMusicButton();
+  musicLabel.textContent = 'Retry music';
+}
+
+music.addEventListener('click', async () => {
+  if (!song.paused) {
+    song.pause();
+    return;
+  }
+  try {
+    if (song.error) song.load();
+    await song.play();
+  } catch (error) {
+    if (error.name !== 'AbortError') showMusicError();
   }
 });
+song.addEventListener('play', updateMusicButton);
+song.addEventListener('pause', updateMusicButton);
+song.addEventListener('ended', updateMusicButton);
+song.addEventListener('error', showMusicError);
