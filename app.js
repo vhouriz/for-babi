@@ -153,63 +153,25 @@ window.addEventListener('hashchange', applyHash);
 window.addEventListener('scroll', updateNavigation, { passive: true });
 applyHash();
 
-const tune = [72, 76, 79, 76, 74, 72, 67, 0, 69, 72, 76, 74, 72, 69, 67, 0, 71, 74, 79, 77, 76, 74, 71, 0, 72, 76, 74, 67, 69, 71, 72, 0];
 const music = byId('music');
-let audioContext;
-let audioTimer;
-let nextNote = 0;
-let noteIndex = 0;
-function scheduleMusic() {
-  while (nextNote < audioContext.currentTime + .25) {
-    const pitch = tune[noteIndex++ % tune.length];
-    if (pitch) {
-      const tone = audioContext.createOscillator();
-      const envelope = audioContext.createGain();
-      tone.type = 'sine';
-      tone.frequency.value = 440 * Math.pow(2, (pitch - 69) / 12);
-      envelope.gain.setValueAtTime(.0001, nextNote);
-      envelope.gain.exponentialRampToValueAtTime(.105, nextNote + .018);
-      envelope.gain.exponentialRampToValueAtTime(.0001, nextNote + .94);
-      tone.connect(envelope).connect(audioContext.destination);
-      tone.start(nextNote);
-      tone.stop(nextNote + .96);
-      tone.onended = () => { tone.disconnect(); envelope.disconnect(); };
-    }
-    nextNote += .42;
-  }
-}
+const songPanel = byId('song-panel');
+const songFrame = byId('song-frame');
 
-function stopMusic() {
-  clearInterval(audioTimer);
-  audioTimer = undefined;
-  if (audioContext) { audioContext.close().catch(() => {}); audioContext = undefined; }
-  music.classList.remove('playing');
-  music.setAttribute('aria-pressed', 'false');
-  byId('music-label').textContent = 'Play music';
-  music.querySelector('use').setAttribute('href', '#i-play');
-}
+music.addEventListener('click', () => {
+  const opening = songPanel.hidden;
+  songPanel.hidden = !opening;
+  music.setAttribute('aria-expanded', String(opening));
+  byId('music-label').textContent = opening ? 'Close player' : 'Play music';
+  music.querySelector('use').setAttribute('href', opening ? '#i-close' : '#i-play');
 
-music.addEventListener('click', async () => {
-  if (audioContext) { stopMusic(); return; }
-  try {
-    const sound = new (window.AudioContext || window.webkitAudioContext)();
-    audioContext = sound;
-    await sound.resume();
-    if (sound !== audioContext) return;
-    noteIndex = 0;
-    nextNote = sound.currentTime + .03;
-    scheduleMusic();
-    audioTimer = setInterval(scheduleMusic, 100);
-    music.classList.add('playing');
-    music.setAttribute('aria-pressed', 'true');
-    byId('music-label').textContent = 'Pause music';
-    music.querySelector('use').setAttribute('href', '#i-pause');
-  } catch {
-    stopMusic();
-    byId('music-label').textContent = 'Audio unavailable';
-    music.disabled = true;
+  if (opening) {
+    const frame = document.createElement('iframe');
+    frame.title = 'Paul Partohap – P.S. I LOVE YOU';
+    frame.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.src = 'https://www.youtube.com/embed/n5i3QRvPA9Y?autoplay=1&playsinline=1';
+    songFrame.append(frame);
+  } else {
+    songFrame.replaceChildren();
   }
-});
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden && audioContext) stopMusic();
 });
